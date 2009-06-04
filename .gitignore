@@ -2,3 +2,5 @@
 *~
 # Ignore compile python
 .pyc
+# Ignore temporary emacs files
+#*#
