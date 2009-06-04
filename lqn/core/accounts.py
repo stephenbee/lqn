@@ -1,6 +1,8 @@
 class Account():
-
-    __quids = 0
+"""
+Implements an LQN account
+"""
+    __quids = 0 
     
     def __init__(self, initial_quids):
         self.__quids = initial_quids
@@ -8,5 +10,3 @@ class Account():
     def getBalance(self):
         return self.__quids
 
-    def uncoveredMethod(self):
-        pass

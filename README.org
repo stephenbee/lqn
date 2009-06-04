@@ -15,6 +15,9 @@ Docstring conventions.
 ** Virtual environments.
 We recommend that developers set up a virtualenv environment to ensure
 that we don't clash with system-wide Python packages.
+
+We're using Python 2.6.
+
 *** Packages we use.
 These include:
 - coverage-2.85-py2.6
