@@ -26,4 +26,5 @@ These include:
 - setuptools-0.6c9-py2.6
 - nose-0.11.1-py2.6
 - Paste-1.7.2-py2.6
-
+- Tkinter-py2.6 - not eggy however
+- SymPy-2.0.1-py2.6
