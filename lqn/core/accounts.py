@@ -27,7 +27,11 @@ class Account(object):
         else:
             raise InsufficientFunds, self._balance
 
-        
-    
+    def get_velocity_data(self):
+        '''Return raw velocity over a certain time period.
+        This may take the form of a list of transaction amounts.
+
+        This method should probably have a start and end time'''
+        pass
     
     
