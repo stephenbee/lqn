@@ -18,8 +18,6 @@ def class Policy(object):
     # initially have exclusive write access to them.
     _extraction_rate = 1
     _insertion_rate = 1
-
-
     
     def adjust(account):
         '''Requests a raw velocity report from an Account, then makes
