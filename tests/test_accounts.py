@@ -23,3 +23,5 @@ class TestAccount(unittest.TestCase):
     def testExtractTooMuch(self):
         print 'Trying to extract too much'
         self.failUnlessRaises(InsufficientFunds, self.acc.extract, 70)
+
+        
