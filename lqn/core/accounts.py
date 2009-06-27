@@ -9,19 +9,26 @@ class Account(object):
     '''Implements an LQN account.  Note that murrage and demurrage
     are taken care of elsewhere in the Policy class'''
     
-    _balance = 0 
+    def __init__(self, holder):
+        self._accountnumber = self._generateAccountNumber()
+        self._accountholder = holder
+        self._balance = 0
+        print "Created account number %d for %s " % (self._accountnumber, holder)
+        
+    def _generateAccountNumber(self):
+        return AccountNumberGenerator.generate()
+        
+    def getAccountNumber(self):
+        return self._accountnumber
     
-    def __init__(self, initial_balance):
-        self._balance = initial_balance
-    
-    def balance(self):
+    def getBalance(self):
         '''balance getter'''
         return self._balance
 
-    def inject(self, amount):
+    def credit(self, amount):
         self._balance += amount
 
-    def extract(self, amount):
+    def debit(self, amount):
         if amount <= self._balance:
             self._balance -= amount
         else:
@@ -34,4 +41,24 @@ class Account(object):
         This method should probably have a start and end time'''
         pass
     
+    
+class AccountNumberGenerator(object):
+    
+    _generatorCls = "IncrementalGenerator"
+    
+    def generate():
+        cls = globals()[AccountNumberGenerator._generatorCls]
+        return cls.generate()
+    generate = staticmethod(generate)
+    
+    
+    
+class IncrementalGenerator(object):
+    
+    _counter=0
+    
+    def generate():
+        IncrementalGenerator._counter = IncrementalGenerator._counter + 1
+        return IncrementalGenerator._counter
+    generate = staticmethod(generate)
     
