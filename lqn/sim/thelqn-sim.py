@@ -22,6 +22,7 @@ class LqnNetwork(Process):
         self.name = name
         self.members = []
         self.totalQuids = 0
+        self.addedQuids = 0
         
     def createNetwork(self):
         for i in range(n):
@@ -32,13 +33,25 @@ class LqnNetwork(Process):
         while (1):
             for i in self.members:
                 i.earnQuids(t)
+                self.addedQuids = self.addedQuids + t
             self._calcTotalQuidsInNetwork()    
             yield hold,self,1.0   
+            
+            
+    def getTotalQuidsInNetwork(self):
+        return self.totalQuids
 
+    def checkSimulationGoal(self):
+        control = n*(s + t*(now() + 1) )
+        print "Control (n*(s + t*(now() + 1) ): %d" %control
+        
     def _calcTotalQuidsInNetwork(self):
         self.totalQuids = 0
         for i in self.members:
             self.totalQuids = self.totalQuids + i.getAccount().getBalance()
+        if self.totalQuids >= I:
+            stopSimulation()
+            self.checkSimulationGoal()
         print "Total amount of quids in network: %d" %self.totalQuids
     
            
@@ -52,7 +65,7 @@ initialize()
 network = LqnNetwork("Dublin Regional Authority")
 network.createNetwork()
 activate(network,network.quidInjection(),at=0.0)
-simulate(until=100)
+simulate(until=1000)
 print "Current time is ", now()
     
 
