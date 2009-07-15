@@ -1,6 +1,6 @@
 from lqn.core.accounts import Account, InsufficientFunds
 
-def class Policy(object):
+class Policy(object):
     '''Policy encapsulates the money-supply policy for the LQN scheme.
     It makes transactions against accounts to add quids to performing
     accounts, and subract quids from non-performing accounts.

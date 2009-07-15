@@ -1,3 +1,5 @@
+from lqn.core.generators import account_number_generator
+
 class InsufficientFunds(Exception):
     def __init__(self, value):
         self.value = value
@@ -10,47 +12,28 @@ class Account(object):
     are taken care of elsewhere in the Policy class'''
     
     def __init__(self, holder):
-        self._accountnumber = self._generateAccountNumber()
-        self._accountholder = holder
-        self._balance = 0
-        print "Created account number %d for %s " % (self._accountnumber, holder)
+        self.__accountnumber = self.__generate_account_number()
+        self.__accountholder = holder
+        self.__balance = 0
+        print "Created account number %d for %s " % (self.__accountnumber, holder)
         
-    def _generateAccountNumber(self):
-        return AccountNumberGenerator.generate()
+    def __generate_account_number(self):
+        return account_number_generator.generate()
         
-    def getAccountNumber(self):
-        return self._accountnumber
+    def get_account_number(self):
+        return self.__accountnumber
     
-    def getBalance(self):
+    def get_balance(self):
         '''balance getter'''
-        return self._balance
+        return self.__balance
 
     def credit(self, amount):
-        self._balance += amount
+        self.__balance += amount
 
     def debit(self, amount):
-        if amount <= self._balance:
-            self._balance -= amount
+        if amount <= self.__balance:
+            self.__balance -= amount
         else:
-            raise InsufficientFunds, self._balance    
+            raise InsufficientFunds, self.__balance    
     
-class AccountNumberGenerator(object):
-    
-    _generatorCls = "IncrementalGenerator"
-    
-    def generate():
-        cls = globals()[AccountNumberGenerator._generatorCls]
-        return cls.generate()
-    generate = staticmethod(generate)
-    
-    
-    
-class IncrementalGenerator(object):
-    
-    _counter=0
-    
-    def generate():
-        IncrementalGenerator._counter = IncrementalGenerator._counter + 1
-        return IncrementalGenerator._counter
-    generate = staticmethod(generate)
-    
+
