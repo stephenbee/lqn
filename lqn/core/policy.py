@@ -19,12 +19,11 @@ class Policy(object):
     _extraction_rate = 1
     _insertion_rate = 1
     
-    def adjust(account):
+    def adjust(target_account):
         '''Requests a raw velocity report from an Account, then makes
         an appropriate transaction to extract or inject quids'''
-        velocity_data = account.get_velocity_data()
+        velocity_data = target_account.get_velocity_data()
         # Now apply the velocity algorithm.
         # Adjust the account accordingly using inject or extract methods.
         pass
 
-    

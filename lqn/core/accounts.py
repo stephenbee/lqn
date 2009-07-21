@@ -37,3 +37,5 @@ class Account(object):
             raise InsufficientFunds, self.__balance    
     
 
+class AccountType(object):
+    Business, Member, Trust, Sponsor = range(4)
