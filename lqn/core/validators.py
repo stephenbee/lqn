@@ -3,7 +3,7 @@ Created on 13-lug-2009
 
 @author: fabio
 '''
-
+from lqn.core import logger
 #from typecheck import accepts
 #from lqn.core.transactions import Transaction
 
@@ -13,7 +13,7 @@ class ValidationError(Exception):
         self.reason     = reason
         
     def __str__(self):
-        msg = "Validation failed on object " + self.dataobject +  " - " + self.reason
+        logger.warn("Validation failed on object %s - %s" ,self.dataobject,self.reason)
         return repr(msg)
 
 
@@ -67,7 +67,8 @@ class QuidValidator(DataValidator):
     def validate(self,quids):
         #print "Validating quids"
         if (quids <= 0):
-            raise ValidationError(type(self), "Quid amount must be greater than 0. Received: " + quids)
+            msg = "Quid amount must be greater than 0. Received: ", quids
+            raise ValidationError(type(self), msg )
 
 
 

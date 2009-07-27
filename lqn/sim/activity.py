@@ -20,5 +20,10 @@ class TransactionRecorder(object):
         self.transactions.append(transaction)
         
     def get_transactions(self, start_date, end_date, member):
-        pass
+        results = list()
+        for i in self.transactions:
+            if (i.get_debit_account() == member):
+                results.append(i)
+        
+        return results
         

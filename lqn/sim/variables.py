@@ -23,7 +23,7 @@ increase_step_for_businesses = 1000
 #increase step, in quids
 #increase_step               = 20
 #number of businesses in the scheme
-num_of_businesses           = 300
+num_of_businesses           = 10#300
 #final total quids amount, not used for now            
 final_total_quids           = 100000
 #sponsorship factor         
@@ -36,4 +36,6 @@ monthly_expenditures        = 70
 #lower_range_transaction and upper_range_transaction                
 lower_range_transaction     = 10            
 upper_range_transaction     = 100
+#after this amount of days, the policy is applied
+policy_application_period   = 7
                

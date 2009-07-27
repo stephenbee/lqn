@@ -3,7 +3,7 @@ Created on 13-lug-2009
 
 @author: fabio
 '''
-
+from lqn.core import logger
 from lqn.core.validators import DataValidator
 from lqn.core.accounts import InsufficientFunds
 
@@ -55,7 +55,7 @@ class Transaction(object):
             self.__credit_account.credit(self.__amount)
         except InsufficientFunds:
             msg = "Transaction failed. Not sufficient funds on debit account "
-            print msg
+            logger.warn(msg)
             raise TransactionFailed(msg)
         
         

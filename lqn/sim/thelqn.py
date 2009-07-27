@@ -1,4 +1,7 @@
+from lqn.sim import logger
+
 from SimPy.Simulation import *
+
 from lqn.core.accounts import Account
 from lqn.core.transactions import Transaction, TransactionFailed
 
@@ -29,11 +32,11 @@ class LqnMember(Process):
     # if I have a reason to terminate my membership, leave the quid system
     def spend(self):
         while True:
-            print self.sim.now(),self.id, ": I am spending."
-            network.scenario.spend(self);
-            wait_time = random.randrange(1.0,10.0)
-            wait_time = float(wait_time)
-            print self.id, ": Now I wait for",wait_time
+            logger.debug("%d - %s: I am spending." , self.sim.now(), self.id) 
+            #pass spend event to scenario object
+            wait_time = network.scenario.spend(self);
+            #put the object to wait
+            logger.debug("%s: Now I wait for %d", self.id, wait_time)
             yield hold,self,wait_time
     
     
@@ -46,7 +49,7 @@ class LqnCouncilEmployee(LqnMember):
     def __init__(self, id, simInstance):
         LqnMember.__init__(self, id, simInstance)
         
-
+        
 class LqnBusiness(LqnMember):
     '''
     Every business owns an own account
@@ -64,7 +67,7 @@ class LqnTrust(Process):
         Process.__init__(self, simInstance)
         self.name = name
         self.account = Account(name)
-        print self.name, "created."
+        logger.debug("%s created.", self.name)
         
     def create_initial_quids(self):
         #number or sponsors:
@@ -110,12 +113,31 @@ class LqnTrust(Process):
         self.account.credit(total_amount)
 #        self.inject_quids(total_amount)        
         self.__do_transactions(account_list, amount)        
-        
-        print "Injected",amount,"quids into",count,"accounts. Total:",\
-                total_amount,"quids."                
+        logger.info("Injected %d quids into %d accounts. Total: %d quids.", 
+                amount,count,total_amount)
 #    def inject_quids(self, amount):
 #        self.account.credit(amount)
 #        yield put,self,total_quids_in_network,amount
+
+    def apply_policy(self, data_accessor, list, policy):
+        timestamp   = datetime.now()
+        quids_level = 0
+        base        = "Policy applied to all accounts."
+        ending      = ""
+        
+        for i in list:
+            for member in i:
+                quids_level += policy.apply(self.account,member.get_account(),
+                                             data_accessor, timestamp)
+        if (quids_level > 0):
+            ending = "Removed %d quids in total.", quids_level
+        elif (quids_level < 0):
+            ending = "Added %d quids in total.",quids_level
+        else:
+            ending = "No changes in total quids."
+        msg = base, ending
+        logger.info(msg) 
+        
 
 
 class LqnNetwork(Process):
@@ -151,21 +173,22 @@ class LqnNetwork(Process):
 
         for n in range(num_of_businesses):
             self.businesses.append(LqnBusiness("Business-%d" %n, self.sim) )
-            
+        logger.info("Initial network members created")    
         self.start();
 
     def start(self):
         random.seed(random_seed) # seeds the random number generator
         self.trust.create_initial_quids()
+        logger.info("Initial quids supplied. Network can now start")
         self._calc_total_quids_in_network()
              
     def run(self):        
         while True:              
             day = self.sim.now()
-            print "Current step is", day                    
+            logger.info("Simulation runs now day %d", day)                    
             self.scenario.run(day)
             
-            print "Total quids in network: ", total_quids_in_network.amount
+            #logger.info("Total quids in network: %d", total_quids_in_network.amount)
             self._calc_total_quids_in_network()    
             yield hold,self,1.0
             
@@ -182,7 +205,8 @@ class LqnNetwork(Process):
         for list in self.all_members:
             for i in list:
                 self.total_quids += i.get_account().get_balance()
-        print "Total amount of quids in network: %d" %self.total_quids
+         
+        logger.info("Total amount of quids in network: %d", self.total_quids)
      
     def _calc_total_quids_in_group(self, group):
         group_quids = 0               
@@ -195,6 +219,14 @@ class LqnNetwork(Process):
 #Run the simulation
 sim = Simulation()
 sim.initialize()
+
+
+logger.info("************************************************")
+logger.info("The Liquidity Network Simulation  - version 0.1")
+logger.info("************************************************")
+logger.info("Starting Simulation.")
+logger.info("Current time is %d", sim.now())
+
 network = LqnNetwork("Kilkenny LQN", sim)
 network.create_network()
 sim.activate(network,network.run(),at=0.0)
@@ -206,9 +238,9 @@ total_quids_in_network = Level(name='total_quids_in_network', unitName='quids',
 sim.simulate(until=90)
 
 
-print "************************************************"
-print "Simulation terminated"
-print "Current time is ", sim.now()
+logger.info("************************************************")
+logger.info("Simulation terminated")
+logger.info("Current time is %d", sim.now())
 #print "The quid level in the " + network.council.id + " account has been:"
 #print network.council_quids.yseries()
 #print "The quid level in the " + network.members[3].id + " account has been:"
