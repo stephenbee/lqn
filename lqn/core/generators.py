@@ -28,3 +28,4 @@ class IncrementalGenerator(AccountNumberGenerator):
     
 #default_generator = IncrementalGenerator    
 account_number_generator = IncrementalGenerator()
+transaction_id_generator = IncrementalGenerator()

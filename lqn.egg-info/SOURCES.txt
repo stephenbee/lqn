@@ -15,5 +15,7 @@ lqn/core/transactions.py
 lqn/core/validators.py
 lqn/sim/__init__.py
 lqn/sim/activity.py
+lqn/sim/scenarios.py
 lqn/sim/simenv.py
-lqn/sim/thelqn-sim.py
+lqn/sim/thelqn.py
+lqn/sim/variables.py

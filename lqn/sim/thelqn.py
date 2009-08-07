@@ -2,14 +2,17 @@ from lqn.sim import logger
 
 from SimPy.Simulation import *
 
-from lqn.core.accounts import Account
+from lqn.core.accounts import Account,AccountHistory
 from lqn.core.transactions import Transaction, TransactionFailed
 
 from activity import TransactionRecorder
 from scenarios import *
 from variables import *
 
-
+#followin imports are needed for profiling
+#see http://docs.python.org/library/profile.html
+#import cProfile
+#import pstats     #this is only needed for customizing the profiling. 
 
 class LqnMember(Process):
     '''
@@ -20,6 +23,11 @@ class LqnMember(Process):
         self.sim        = simInstance
         self.id         = id
         self.account    = Account(id)
+        self.ac_history = AccountHistory(average_balance_period)
+        #propensity to trade; could be attached to scenario,
+        #but it is maybe the case that this propensity is different
+        #depending on member type.
+        self.prop_trade = 0.5 
         self.sim.activate(self,self.spend())
   
     def get_account(self):
@@ -49,7 +57,29 @@ class LqnCouncilEmployee(LqnMember):
     def __init__(self, id, simInstance):
         LqnMember.__init__(self, id, simInstance)
         
+class LqnCouncil(LqnMember):
+    '''
+    There are members which are also employees
+    of the council; they might get wages
+    partly paid in quids.
+    '''   
+    def __init__(self, id, simInstance):
+        LqnMember.__init__(self, id, simInstance)
         
+    def pay_employees(self,employees):
+        #pay wages of 10% in quids to employees        
+        for employee in employees:
+            #timestamp
+            tstamp = datetime.now()
+            ta_amount = average_employee_wage
+            ta = Transaction(employee.get_account(),self.account,
+                         ta_amount,tstamp)
+            ta.commit()
+        total_paid = len(employees) * ta_amount
+        logger.info("Council paid 10%% of wages in quid to %d workers", 
+                    len(employees))
+        logger.info("Council paid %d quids for wages in total.",total_paid)
+                
 class LqnBusiness(LqnMember):
     '''
     Every business owns an own account
@@ -120,6 +150,11 @@ class LqnTrust(Process):
 #        yield put,self,total_quids_in_network,amount
 
     def apply_policy(self, data_accessor, list, policy):
+        '''
+            Only the trust is allowed to apply the policy,
+            so it needs to be done in this object, not in 
+            scenario or elsewhere.
+        '''
         timestamp   = datetime.now()
         quids_level = 0
         base        = "Policy applied to all accounts."
@@ -130,9 +165,9 @@ class LqnTrust(Process):
                 quids_level += policy.apply(self.account,member.get_account(),
                                              data_accessor, timestamp)
         if (quids_level > 0):
-            ending = "Removed %d quids in total.", quids_level
+            ending = "Added %d quids in total.", quids_level
         elif (quids_level < 0):
-            ending = "Added %d quids in total.",quids_level
+            ending = "Removed %d quids in total.",quids_level
         else:
             ending = "No changes in total quids."
         msg = base, ending
@@ -152,17 +187,17 @@ class LqnNetwork(Process):
         self.employees      = []
         self.businesses     = []
         self.sponsors       = []
-        self.all_members    = [self.members, self.employees, self.businesses, self.sponsors]
+        self.all_members    = [self.members, self.employees, 
+                               self.businesses, self.sponsors]
         self.total_quids    = 0
-        #self.addedQuids     = 0
-        self.ta_recorder    = TransactionRecorder()
+        self.ta_recorder    = TransactionRecorder()       
         self.scenario       = SimpleScenario(self)
         #self.council_quids  = Monitor()
         #self.a_member_quids = Monitor()
         
     def create_network(self):
         self.trust = LqnTrust(self.name + " Trust" , self.sim)
-        self.council = LqnMember("Kilkenny County Council", self.sim)
+        self.council = LqnCouncil("Kilkenny County Council", self.sim)
         self.sponsors.append(self.council)
         
         for i in range(num_of_members):
@@ -192,9 +227,7 @@ class LqnNetwork(Process):
             self._calc_total_quids_in_network()    
             yield hold,self,1.0
             
-    def get_total_quids_in_network(self):
-        return self.totalQuids
-
+ 
     #def check_simulation_goal(self):
     #    control = n*(s + t*(now() + 1) )
     #    print "Control (n*(s + t*(now() + 1) ): %d" %control
@@ -209,21 +242,33 @@ class LqnNetwork(Process):
         logger.info("Total amount of quids in network: %d", self.total_quids)
      
     def _calc_total_quids_in_group(self, group):
+        '''
+            Not needed yet, but could be handy at some point.
+        '''
         group_quids = 0               
         for i in group:
             group_quids += i.get_account().get_balance()
         return group_quids
      
-
+    def record_daily_balances(self):
+        '''
+            At the end of the day, in order to calculate mean average
+            balances, we need to store the current balance per account
+        '''
+        for list in self.all_members:
+            for member in list:
+                account = member.get_account()
+                account.account_history.record_daily_balance(
+                        account.get_balance())
 
 #Run the simulation
 sim = Simulation()
 sim.initialize()
 
 
-logger.info("************************************************")
-logger.info("The Liquidity Network Simulation  - version 0.1")
-logger.info("************************************************")
+logger.info("*************************************************")
+logger.info("The Liquidity Network Simulation  - version 0.1.1")
+logger.info("*************************************************")
 logger.info("Starting Simulation.")
 logger.info("Current time is %d", sim.now())
 
@@ -235,6 +280,9 @@ total_quids_in_network = Level(name='total_quids_in_network', unitName='quids',
                                capacity='unbounded', initialBuffered=0,
                                monitored=True, monitorType=Monitor)
 
+#IMPORTANT: To activate profiling, uncomment the following
+#line and comment the subsequent.
+#cProfile.run('sim.simulate(until=90)')
 sim.simulate(until=90)
 
 

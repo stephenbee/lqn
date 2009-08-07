@@ -6,6 +6,7 @@ Created on 13-lug-2009
 from lqn.core import logger
 from lqn.core.validators import DataValidator
 from lqn.core.accounts import InsufficientFunds
+from lqn.core.generators import transaction_id_generator
 
 class TransactionFailed(Exception):
     def __init__(self, value):
@@ -24,6 +25,7 @@ class Transaction(object):
         '''
         Constructor
         '''
+        self.__id             = transaction_id_generator.generate()
         self.__credit_account = credit_account;
         self.__debit_account  = debit_account;
         self.__amount         = amount;
@@ -54,8 +56,12 @@ class Transaction(object):
             self.__debit_account.debit(self.__amount)
             self.__credit_account.credit(self.__amount)
         except InsufficientFunds:
-            msg = "Transaction failed. Not sufficient funds on debit account "
+            msg = "Transaction failed. Not sufficient funds on debit account."
+            detail_msg = "ID: %d - Debit account: %s - Credit account: %s - Amount %d" %(\
+                    self.__id, self.__debit_account.get_account_holder(),\
+                    self.__credit_account.get_account_holder(), self.__amount)
             logger.warn(msg)
+            logger.debug(detail_msg)
             raise TransactionFailed(msg)
         
         

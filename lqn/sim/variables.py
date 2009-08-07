@@ -6,11 +6,13 @@ Created on 18-lug-2009
 #global variables for the simulation   
 random_seed = 42424242
 #number of LQN members which are not employees of the council
-num_of_members              = 5#500
+num_of_members              = 50#5#500
 #number of council employees
-num_of_employees            = 10#1000
- #initial quids amount per member account            
-initial_quids_per_account   = 100
+num_of_employees            = 100#10#1000
+#average quid wage of a council employee (which is 10% of total wage in EUR)
+average_employee_wage       = 400
+#initial quids amount per member account            
+initial_quids_per_account   = 1000
 #initial quids for businesses
 initial_quids_per_business  = 1000
 #quid injection for businesses period, in months:
@@ -23,7 +25,7 @@ increase_step_for_businesses = 1000
 #increase step, in quids
 #increase_step               = 20
 #number of businesses in the scheme
-num_of_businesses           = 10#300
+num_of_businesses           = 30#10#300
 #final total quids amount, not used for now            
 final_total_quids           = 100000
 #sponsorship factor         
@@ -34,8 +36,12 @@ sponsorship_factor          = 10000
 monthly_expenditures        = 70
 #every transaction gets randomly a value between
 #lower_range_transaction and upper_range_transaction                
-lower_range_transaction     = 10            
-upper_range_transaction     = 100
+lower_range_transaction     = 5#10            
+upper_range_transaction     = 20#100
+#only after this period, the policy starts to be applied
+no_policy_period            = 56
 #after this amount of days, the policy is applied
 policy_application_period   = 7
+#on this period the average balance per account is calculated
+average_balance_period      = 90
                
